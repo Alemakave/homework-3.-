@@ -1,16 +1,20 @@
 package ru.hogwarts.school.model;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import java.util.Objects;
 
+@Entity
 public class Student {
-    private final long id;
+    @Id
+    @GeneratedValue
+    private Long id;
     private String name;
     private int age;
 
-    public Student(long id, String name, int age) {
-        this.id = id;
-        this.name = name;
-        this.age = age;
+    protected Student() {
+
     }
 
     public long getId() {
@@ -40,7 +44,7 @@ public class Student {
 
         Student student = (Student) o;
 
-        if (id != student.id) return false;
+        if (!Objects.equals(id, student.id)) return false;
         if (age != student.age) return false;
         return Objects.equals(name, student.name);
     }
