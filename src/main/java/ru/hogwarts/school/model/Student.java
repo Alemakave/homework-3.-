@@ -13,9 +13,7 @@ public class Student {
     private String name;
     private int age;
 
-    protected Student() {
-
-    }
+    protected Student() {}
 
     public long getId() {
         return id;
