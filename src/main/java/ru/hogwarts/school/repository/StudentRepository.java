@@ -8,5 +8,8 @@ import java.util.List;
 
 public interface StudentRepository extends JpaRepository<Student, Long> {
     @Query("select s from Student s where age=?1")
-    List<Student> foundByAge(int age);
+    List<Student> findByAge(int age);
+
+    @Query("select s from Student s where age >= ?1 and age < ?2")
+    List<Student> findByAgeBetween(int min, int max);
 }

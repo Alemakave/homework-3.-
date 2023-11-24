@@ -39,7 +39,7 @@ public class FacultyService {
         return foundedFaculty;
     }
 
-    public List<Faculty> findByColor(String color) {
-        return repository.findByColor(color);
+    public List<Faculty> findByColor(String name, String color) {
+        return repository.findByColor(name, color);
     }
 }
