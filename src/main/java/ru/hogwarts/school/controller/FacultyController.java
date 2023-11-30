@@ -4,9 +4,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Faculty;
+import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.FacultyService;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/faculty")
@@ -58,5 +60,11 @@ public class FacultyController {
         }
 
         return ResponseEntity.ok(List.of());
+    }
+
+    @GetMapping("/find-students")
+    public ResponseEntity<Set<Student>> findStudents(@RequestParam Long facultyId) {
+        Set<Student> students = service.findStudentsByFaculty(facultyId);
+        return ResponseEntity.ok(students);
     }
 }
