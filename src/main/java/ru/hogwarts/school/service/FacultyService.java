@@ -17,8 +17,7 @@ public class FacultyService {
     }
 
     public Faculty addFaculty(Faculty faculty) {
-        repository.save(faculty);
-        return faculty;
+        return repository.save(faculty);
     }
 
     public Faculty getFacultyById(Long id) {
@@ -26,13 +25,11 @@ public class FacultyService {
     }
 
     public Faculty editFaculty(Faculty newFaculty) {
-        if (repository.existsById(newFaculty.getId())) {
+        if (!repository.existsById(newFaculty.getId())) {
             return null;
         }
 
-        repository.save(newFaculty);
-
-        return newFaculty;
+        return repository.save(newFaculty);
     }
 
     public Faculty removeFaculty(long id) {

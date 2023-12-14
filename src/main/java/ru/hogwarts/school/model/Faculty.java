@@ -18,7 +18,7 @@ public class Faculty {
     @JsonIgnore
     private Set<Student> students;
 
-    protected Faculty() {}
+    public Faculty() {}
 
     public Long getId() {
         return id;
@@ -34,6 +34,10 @@ public class Faculty {
 
     public Set<Student> getStudents() {
         return students;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public void setName(String name) {

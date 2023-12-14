@@ -16,9 +16,7 @@ public class StudentService {
     }
 
     public Student addStudent(Student student) {
-        repository.save(student);
-
-        return student;
+        return repository.save(student);
     }
 
     public Student getStudent(Long id) {
@@ -30,9 +28,7 @@ public class StudentService {
             return null;
         }
 
-        repository.save(newStudent);
-
-        return newStudent;
+        return repository.save(newStudent);
     }
 
     public Student removeStudent(Long id) {
