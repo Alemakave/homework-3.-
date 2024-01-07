@@ -7,7 +7,9 @@ import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.StudentRepository;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class StudentService {
@@ -65,5 +67,29 @@ public class StudentService {
     public Faculty getStudentFaculty(Long studentId) {
         logger.info("Was invoked method for get student faculty");
         return repository.getStudentFaculty(studentId);
+    }
+
+    public List<Student> getAllStudentsSorted() {
+        List<Student> students = repository.findAll();
+
+        return students.stream()
+                .parallel()
+                .peek(student -> student.setName(student.getName().toUpperCase()))
+                .filter(student -> student.getName().startsWith("A"))
+                .sorted(Comparator.comparing(Student::getName))
+                .collect(Collectors.toList());
+    }
+
+    public double getAllStudentsAvgAge() {
+        List<Student> students = repository.findAll();
+
+        int allStudentsAge = students
+                .stream()
+                .map(Student::getAge)
+                .parallel()
+                .reduce(Integer::sum)
+                .orElseThrow();
+
+        return (double) allStudentsAge / students.size();
     }
 }
