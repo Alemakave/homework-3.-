@@ -1,5 +1,7 @@
 package ru.hogwarts.school.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +23,7 @@ import java.nio.file.StandardOpenOption;
 public class AvatarService {
     private final StudentService studentService;
     private final AvatarRepository avatarRepository;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Value("${base.avatars.dir}")
     private String avatarsDir;
@@ -31,37 +34,44 @@ public class AvatarService {
     }
 
     public Avatar getAvatar(Long studentId) {
+        logger.info("Was invoked method for get avatar");
         return avatarRepository.findAvatarByStudentId(studentId).orElseThrow();
     }
 
     public Student uploadAvatar(Long studentId, MultipartFile file) throws IOException {
-        Student student = studentService.getStudent(studentId);
+        logger.info("Was invoked method for upload avatar");
+        try {
+            Student student = studentService.getStudent(studentId);
 
-        Path filePath = Path.of(avatarsDir, studentId.toString(), file.getOriginalFilename());
-        Files.createDirectories(filePath.getParent());
-        Files.deleteIfExists(filePath);
+            Path filePath = Path.of(avatarsDir, studentId.toString(), file.getOriginalFilename());
+            Files.createDirectories(filePath.getParent());
+            Files.deleteIfExists(filePath);
 
-        int rwByteCount = 1024;
+            int rwByteCount = 1024;
 
-        try (InputStream is = file.getInputStream();
-             OutputStream os = Files.newOutputStream(filePath, StandardOpenOption.CREATE_NEW);
-             BufferedInputStream bis = new BufferedInputStream(is, rwByteCount);
-             BufferedOutputStream bos = new BufferedOutputStream(os, rwByteCount)
-        ) {
-            bis.transferTo(bos);
+            try (InputStream is = file.getInputStream();
+                 OutputStream os = Files.newOutputStream(filePath, StandardOpenOption.CREATE_NEW);
+                 BufferedInputStream bis = new BufferedInputStream(is, rwByteCount);
+                 BufferedOutputStream bos = new BufferedOutputStream(os, rwByteCount)
+            ) {
+                bis.transferTo(bos);
+            }
+
+            Avatar avatar = getAvatarByStudentId(studentId);
+            avatar.setStudent(student);
+            avatar.setFilePath(filePath.toString());
+            avatar.setFileSize(file.getSize());
+            avatar.setMediaType(file.getContentType());
+
+            avatar.setData(generateImagePreview(filePath));
+
+            avatarRepository.save(avatar);
+
+            return student;
+        } catch (IOException e) {
+            logger.error("Method throw IOException then student id=" + studentId);
+            throw e;
         }
-
-        Avatar avatar = getAvatarByStudentId(studentId);
-        avatar.setStudent(student);
-        avatar.setFilePath(filePath.toString());
-        avatar.setFileSize(file.getSize());
-        avatar.setMediaType(file.getContentType());
-
-        avatar.setData(generateImagePreview(filePath));
-
-        avatarRepository.save(avatar);
-
-        return student;
     }
 
     private Avatar getAvatarByStudentId(Long studentId) {
