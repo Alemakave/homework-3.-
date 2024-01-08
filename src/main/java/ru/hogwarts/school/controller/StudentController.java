@@ -125,4 +125,22 @@ public class StudentController {
     public ResponseEntity<Double> getAllStudentsAvgAge() {
         return ResponseEntity.ok(service.getAllStudentsAvgAge());
     }
+
+    @GetMapping("/print-parallel")
+    public ResponseEntity<Void> printParallel() {
+        service.printParallel();
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/print-synchronized")
+    public ResponseEntity<Void> printSynchronized() {
+        service.printSynchronized();
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/print-synchronized-use-sync-block")
+    public ResponseEntity<Void> printSynchronizedUseSyncBlock() {
+        service.printSynchronizedUseSyncBlock();
+        return ResponseEntity.ok().build();
+    }
 }

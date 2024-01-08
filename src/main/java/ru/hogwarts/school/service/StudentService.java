@@ -16,6 +16,8 @@ public class StudentService {
     private final StudentRepository repository;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private static Integer count = 0;
+
     public StudentService(StudentRepository repository) {
         this.repository = repository;
     }
@@ -91,5 +93,90 @@ public class StudentService {
                 .orElseThrow();
 
         return (double) allStudentsAge / students.size();
+    }
+
+    public void printParallel() {
+        List<Student> students = repository.findAll()
+                .stream()
+                .limit(6)
+                .collect(Collectors.toList());
+
+        System.out.println("MT(0): " + students.get(0).getName());
+        System.out.println("MT(1): " + students.get(1).getName());
+
+        Thread thread1 = new Thread(() -> {
+            System.out.println("T1(2): " + students.get(2).getName());
+            System.out.println("T1(3): " + students.get(3).getName());
+        });
+        Thread thread2 = new Thread(() -> {
+            System.out.println("T2(4): " + students.get(4).getName());
+            System.out.println("T2(5): " + students.get(5).getName());
+        });
+
+        thread1.start();
+        thread2.start();
+    }
+
+    public void printSynchronized() {
+        List<Student> students = repository.findAll()
+                .stream()
+                .limit(6)
+                .collect(Collectors.toList());
+
+        System.out.println("MT(0): " + students.get(0).getName());
+        System.out.println("MT(1): " + students.get(1).getName());
+
+        Thread thread1 = new Thread(() -> {
+            printSync("T1(2): " + students.get(2).getName());
+            printSync("T1(3): " + students.get(3).getName());
+        });
+        Thread thread2 = new Thread(() -> {
+            printSync("T2(4): " + students.get(4).getName());
+            printSync("T2(5): " + students.get(5).getName());
+        });
+
+        thread1.start();
+        thread2.start();
+    }
+
+    public void printSynchronizedUseSyncBlock() {
+        List<Student> students = repository.findAll()
+                .stream()
+                .limit(6)
+                .collect(Collectors.toList());
+
+        count = 0;
+        System.out.println("MT(" + count + "): " + students.get(count).getName());
+        count++;
+        System.out.println("MT(" + count + "): " + students.get(count).getName());
+        count++;
+
+        Thread thread1 = new Thread(() -> {
+            synchronized (count) {
+                System.out.println("T1(" + count + "): " + students.get(count).getName());
+                count++;
+                System.out.println("T1(" + count + "): " + students.get(count).getName());
+                count++;
+            }
+        });
+        Thread thread2 = new Thread(() -> {
+            synchronized (count) {
+                System.out.println("T2(" + count + "): " + students.get(count).getName());
+                count++;
+                System.out.println("T2(" + count + "): " + students.get(count).getName());
+            }
+        });
+
+        thread1.start();
+        thread2.start();
+    }
+
+    private synchronized void printSync(String message) {
+        System.out.println(message);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
