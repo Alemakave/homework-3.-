@@ -7,8 +7,7 @@ import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.StudentRepository;
 
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -118,24 +117,28 @@ public class StudentService {
     }
 
     public void printSynchronized() {
-        List<Student> students = repository.findAll()
+        LinkedList<Student> queue = repository.findAll()
                 .stream()
                 .limit(6)
-                .collect(Collectors.toList());
+                .collect(Collectors.toCollection(LinkedList::new));
 
-        System.out.println("MT(0): " + students.get(0).getName());
-        System.out.println("MT(1): " + students.get(1).getName());
+        Thread.currentThread().setName("MT");
+
+        printSync(queue);
+        printSync(queue);
 
         Thread thread1 = new Thread(() -> {
-            printSync("T1(2): " + students.get(2).getName());
-            printSync("T1(3): " + students.get(3).getName());
+            printSync(queue);
+            printSync(queue);
         });
         Thread thread2 = new Thread(() -> {
-            printSync("T2(4): " + students.get(4).getName());
-            printSync("T2(5): " + students.get(5).getName());
+            printSync(queue);
+            printSync(queue);
         });
 
+        thread1.setName("T1");
         thread1.start();
+        thread2.setName("T2");
         thread2.start();
     }
 
@@ -171,8 +174,8 @@ public class StudentService {
         thread2.start();
     }
 
-    private synchronized void printSync(String message) {
-        System.out.println(message);
+    private synchronized void printSync(Queue<Student> queue) {
+        System.out.printf("Thread {%s} print \"%s\"%n", Thread.currentThread().getName(), queue.poll().getName());
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
